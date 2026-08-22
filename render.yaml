@@ -1,0 +1,63 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Deploys three resources:
+#   1. ecommerce-db        — managed Postgres (empty until you run init.sql, see README)
+#   2. ecommerce-backend   — Express API, built from backend/Dockerfile
+#   3. ecommerce-frontend  — static React build, served by Render's static site CDN
+#
+# Unlike docker-compose, Render's managed Postgres does NOT auto-run
+# backend/db/init.sql on first boot — that only happens with the official
+# postgres Docker image's docker-entrypoint-initdb.d convention. Run it
+# manually once after the database is created (see README's Render section).
+#
+# NOTE on the two env vars marked `sync: false` below (CORS_ORIGIN, VITE_API_URL):
+# each service needs the OTHER service's public URL, but neither URL exists until
+# Render creates it. Deploy this Blueprint once, then in the Render Dashboard:
+#   - open ecommerce-backend  -> Environment -> set CORS_ORIGIN to the frontend's URL
+#   - open ecommerce-frontend -> Environment -> set VITE_API_URL to <backend-url>/api,
+#     then trigger a manual redeploy (Vite bakes env vars in at build time)
+
+services:
+  - type: web
+    name: ecommerce-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        sync: false # set to the frontend's Render URL after first deploy
+
+  - type: web
+    name: ecommerce-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false # set to https://<ecommerce-backend-url>/api, then redeploy
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: ecommerce-db
+    databaseName: ecommerce
+    user: ecommerce
+    plan: free
+    postgresMajorVersion: "16"

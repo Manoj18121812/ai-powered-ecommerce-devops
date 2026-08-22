@@ -1,6 +1,5 @@
 # Fernweh Supply Co. — Full-Stack E-Commerce Platform
 
-
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white&labelColor=20232a)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
@@ -13,6 +12,7 @@ A full-stack e-commerce platform with user authentication, product management,
 shopping cart, and order processing.
 
 **Stack:** React + TypeScript (Vite) · Node.js + Express + TypeScript · PostgreSQL · Docker
+
 
 
 ## Architecture
@@ -104,6 +104,12 @@ cp .env.example .env
 npm install
 npm run dev               # http://localhost:5173
 ```
+
+## Deploying to Render
+
+This repo includes a `render.yaml` Blueprint that provisions all three pieces
+(Postgres, the API, and the static frontend) in one go.
+
 
 ## Notes / next steps
 
