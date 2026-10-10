@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -7,6 +8,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -27,25 +29,30 @@ pipeline {
 
         stage('Deploy Application') {
             steps {
-                sh 'docker compose up -d'
+                dir('/home/ubuntu/projects/ecommerce-platform') {
+                    sh 'docker compose up -d --build'
+                }
             }
         }
 
-        stage('Deploy Application') {
-    steps {
-        dir('/home/ubuntu/projects/ecommerce-platform') {
-            sh 'docker compose up -d --build'
+        stage('Verify Deployment') {
+            steps {
+                dir('/home/ubuntu/projects/ecommerce-platform') {
+                    sh 'docker compose ps'
+                    sh 'curl -fsS http://localhost:5173/ > /dev/null'
+                }
+            }
         }
     }
-        }
-    
 
     post {
         success {
             echo 'E-commerce application deployed successfully!'
         }
+
         failure {
             echo 'Pipeline failed. Check the Jenkins console output.'
         }
     }
 }
+```
