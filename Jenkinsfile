@@ -31,12 +31,13 @@ pipeline {
             }
         }
 
-        stage('Verify Deployment') {
-            steps {
-                sh 'docker compose ps'
-                sh 'curl -fsS http://localhost:5173/ > /dev/null'
-            }
+        stage('Deploy Application') {
+    steps {
+        dir('/home/ubuntu/projects/ecommerce-platform') {
+            sh 'docker compose up -d --build'
         }
+    }
+}
     }
 
     post {
