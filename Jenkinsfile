@@ -1,4 +1,4 @@
-
+```groovy
 pipeline {
     agent any
 
@@ -8,7 +8,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -23,24 +22,20 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                sh 'docker compose build'
+                sh 'docker compose -p ecommerce-platform build'
             }
         }
 
         stage('Deploy Application') {
             steps {
-                dir('/home/ubuntu/projects/ecommerce-platform') {
-                    sh 'docker compose up -d --build'
-                }
+                sh 'docker compose -p ecommerce-platform up -d'
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                dir('/home/ubuntu/projects/ecommerce-platform') {
-                    sh 'docker compose ps'
-                    sh 'curl -fsS http://localhost:5173/ > /dev/null'
-                }
+                sh 'docker compose -p ecommerce-platform ps'
+                sh 'curl -fsS http://localhost:5173/ > /dev/null'
             }
         }
     }
@@ -55,4 +50,4 @@ pipeline {
         }
     }
 }
-
+```
