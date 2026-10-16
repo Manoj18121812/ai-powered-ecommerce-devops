@@ -25,6 +25,14 @@ pipeline {
                 sh 'docker compose -p ecommerce-platform build'
             }
         }
+      
+stage('Trivy Image Scan') {
+    steps {
+        sh 'trivy image --severity HIGH,CRITICAL ecommerce-platform-backend'
+        sh 'trivy image --severity HIGH,CRITICAL ecommerce-platform-frontend'
+    }
+}
+
 
         stage('Deploy Application') {
             steps {
