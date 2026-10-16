@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -18,22 +19,35 @@ pipeline {
                 sh 'docker compose config -q'
             }
         }
+        stage('Secret Scan') {
+    steps {
+        sh 'gitleaks detect --source . --no-git --redact'
+    }
+}
 
         stage('Build Application') {
             steps {
-                sh 'docker compose build'
+                sh 'docker compose -p ecommerce-platform build'
             }
         }
+      
+stage('Trivy Image Scan') {
+    steps {
+        sh 'trivy image --severity HIGH,CRITICAL ecommerce-platform-backend'
+        sh 'trivy image --severity HIGH,CRITICAL ecommerce-platform-frontend'
+    }
+}
+
 
         stage('Deploy Application') {
             steps {
-                sh 'docker compose up -d'
+                sh 'docker compose -p ecommerce-platform up -d'
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                sh 'docker compose ps'
+                sh 'docker compose -p ecommerce-platform ps'
                 sh 'curl -fsS http://localhost:5173/ > /dev/null'
             }
         }
@@ -43,8 +57,10 @@ pipeline {
         success {
             echo 'E-commerce application deployed successfully!'
         }
+
         failure {
             echo 'Pipeline failed. Check the Jenkins console output.'
         }
     }
 }
+
