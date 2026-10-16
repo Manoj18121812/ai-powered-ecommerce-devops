@@ -19,6 +19,11 @@ pipeline {
                 sh 'docker compose config -q'
             }
         }
+        stage('Secret Scan') {
+    steps {
+        sh 'gitleaks detect --source . --no-git --redact'
+    }
+}
 
         stage('Build Application') {
             steps {
