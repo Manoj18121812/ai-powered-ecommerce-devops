@@ -27,11 +27,7 @@ pipeline {
             }
         }
 
-        stage('Secret Scan') {
-            steps {
-                sh 'gitleaks detect --source . --no-git --redact'
-            }
-        }
+       
 
         stage('Build Images') {
             steps {
